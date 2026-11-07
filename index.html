@@ -1,0 +1,2270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conditioner Client | Ultimate Bedwars Domination</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #00f0ff;
+            --secondary: #ff00e5;
+            --accent: #7b2fff;
+            --dark: #0a0a1a;
+            --darker: #050510;
+            --glow-primary: 0 0 20px rgba(0, 240, 255, 0.5);
+            --glow-secondary: 0 0 20px rgba(255, 0, 229, 0.5);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--darker);
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
+            overflow-x: hidden;
+            cursor: default;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--darker); }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(var(--primary), var(--secondary));
+            border-radius: 10px;
+        }
+
+        /* Particle Canvas */
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Custom Cursor */
+        .cursor {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 10000;
+            transition: transform 0.1s, border-color 0.3s;
+            mix-blend-mode: difference;
+        }
+
+        .cursor-dot {
+            width: 5px;
+            height: 5px;
+            background: var(--secondary);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 10001;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 15px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(20px);
+            background: rgba(5, 5, 16, 0.7);
+            border-bottom: 1px solid rgba(0, 240, 255, 0.1);
+            transition: all 0.3s;
+        }
+
+        nav.scrolled {
+            padding: 10px 50px;
+            background: rgba(5, 5, 16, 0.95);
+            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8em;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: none;
+            letter-spacing: 2px;
+            position: relative;
+        }
+
+        .logo::after {
+            content: 'CLIENT';
+            display: block;
+            font-size: 0.4em;
+            letter-spacing: 8px;
+            background: linear-gradient(135deg, var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #aaa;
+            text-decoration: none;
+            font-size: 1.1em;
+            font-weight: 500;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            position: relative;
+            text-transform: uppercase;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        .hamburger span {
+            width: 30px;
+            height: 3px;
+            background: var(--primary);
+            transition: all 0.3s;
+            border-radius: 2px;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(123, 47, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 50%, rgba(0, 240, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 100%, rgba(255, 0, 229, 0.1) 0%, transparent 50%);
+        }
+
+        .grid-bg {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background-image:
+                linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+            transform: perspective(500px) rotateX(60deg);
+        }
+
+        @keyframes gridMove {
+            0% { transform: perspective(500px) rotateX(60deg) translateY(0); }
+            100% { transform: perspective(500px) rotateX(60deg) translateY(50px); }
+        }
+
+        .hero-content {
+            text-align: center;
+            z-index: 10;
+            position: relative;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 8px 25px;
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            border-radius: 50px;
+            font-size: 0.9em;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--primary);
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            background: rgba(0, 240, 255, 0.05);
+            animation: fadeInDown 1s ease;
+        }
+
+        .hero-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 5em;
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            animation: fadeInUp 1s ease 0.2s both;
+        }
+
+        .hero-title .line1 {
+            display: block;
+            background: linear-gradient(135deg, #fff, #ccc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-title .line2 {
+            display: block;
+            background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% 200%;
+            animation: gradientShift 3s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .hero-subtitle {
+            font-size: 1.3em;
+            color: #888;
+            max-width: 600px;
+            margin: 0 auto 40px;
+            line-height: 1.6;
+            animation: fadeInUp 1s ease 0.4s both;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            animation: fadeInUp 1s ease 0.6s both;
+        }
+
+        .btn-primary {
+            padding: 15px 45px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border: none;
+            border-radius: 50px;
+            color: #000;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1em;
+            font-weight: 700;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 0 50px rgba(0, 240, 255, 0.5);
+        }
+
+        .btn-secondary {
+            padding: 15px 45px;
+            background: transparent;
+            border: 2px solid rgba(255, 0, 229, 0.5);
+            border-radius: 50px;
+            color: var(--secondary);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1em;
+            font-weight: 700;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 0, 229, 0.1);
+            border-color: var(--secondary);
+            transform: translateY(-3px);
+            box-shadow: var(--glow-secondary);
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            margin-top: 80px;
+            animation: fadeInUp 1s ease 0.8s both;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5em;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+
+        /* Floating Minecraft blocks */
+        .floating-block {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .block1 {
+            top: 20%;
+            left: 10%;
+            background: var(--primary);
+            animation-delay: 0s;
+        }
+
+        .block2 {
+            top: 60%;
+            right: 15%;
+            background: var(--secondary);
+            animation-delay: 2s;
+            width: 40px;
+            height: 40px;
+        }
+
+        .block3 {
+            bottom: 20%;
+            left: 20%;
+            background: var(--accent);
+            animation-delay: 4s;
+            width: 50px;
+            height: 50px;
+        }
+
+        .block4 {
+            top: 30%;
+            right: 10%;
+            background: var(--primary);
+            animation-delay: 1s;
+            width: 35px;
+            height: 35px;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(10deg); }
+        }
+
+        /* Section Styles */
+        section {
+            position: relative;
+            z-index: 10;
+            padding: 120px 50px;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .section-tag {
+            display: inline-block;
+            padding: 5px 20px;
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            border-radius: 50px;
+            font-size: 0.85em;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3em;
+            font-weight: 900;
+            margin-bottom: 15px;
+        }
+
+        .section-title span {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .section-desc {
+            color: #666;
+            font-size: 1.1em;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Features Section */
+        #features {
+            background: linear-gradient(180deg, var(--darker), var(--dark));
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 40px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.05), rgba(255, 0, 229, 0.05));
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(0, 240, 255, 0.2);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .feature-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            margin-bottom: 25px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-icon.cyan {
+            background: rgba(0, 240, 255, 0.1);
+            color: var(--primary);
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.1);
+        }
+
+        .feature-icon.pink {
+            background: rgba(255, 0, 229, 0.1);
+            color: var(--secondary);
+            box-shadow: 0 0 30px rgba(255, 0, 229, 0.1);
+        }
+
+        .feature-icon.purple {
+            background: rgba(123, 47, 255, 0.1);
+            color: var(--accent);
+            box-shadow: 0 0 30px rgba(123, 47, 255, 0.1);
+        }
+
+        .feature-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3em;
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-card p {
+            color: #777;
+            line-height: 1.7;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-tag {
+            display: inline-block;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 0.7em;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tag-exclusive {
+            background: rgba(255, 0, 229, 0.15);
+            color: var(--secondary);
+            border: 1px solid rgba(255, 0, 229, 0.3);
+        }
+
+        .tag-unique {
+            background: rgba(0, 240, 255, 0.15);
+            color: var(--primary);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+        }
+
+        .tag-op {
+            background: rgba(123, 47, 255, 0.15);
+            color: var(--accent);
+            border: 1px solid rgba(123, 47, 255, 0.3);
+        }
+
+        /* Exclusive Features (what no other client has) */
+        #exclusive {
+            background: var(--dark);
+        }
+
+        .exclusive-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .exclusive-card {
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.03), rgba(255, 0, 229, 0.03));
+            border: 1px solid rgba(0, 240, 255, 0.1);
+            border-radius: 24px;
+            padding: 50px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s;
+        }
+
+        .exclusive-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 240, 255, 0.1), transparent);
+            transition: all 0.5s;
+        }
+
+        .exclusive-card:hover {
+            border-color: rgba(0, 240, 255, 0.3);
+            transform: scale(1.02);
+            box-shadow: 0 0 60px rgba(0, 240, 255, 0.1);
+        }
+
+        .exclusive-number {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 5em;
+            font-weight: 900;
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.1), rgba(255, 0, 229, 0.1));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: absolute;
+            top: 10px;
+            right: 30px;
+        }
+
+        .exclusive-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .exclusive-card p {
+            color: #888;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .exclusive-features-list {
+            list-style: none;
+        }
+
+        .exclusive-features-list li {
+            padding: 8px 0;
+            color: #aaa;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .exclusive-features-list li::before {
+            content: '⚡';
+        }
+
+        /* Showcase / Preview Section */
+        #showcase {
+            background: linear-gradient(180deg, var(--dark), var(--darker));
+        }
+
+        .showcase-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+        }
+
+        .showcase-visual {
+            position: relative;
+        }
+
+        .showcase-screen {
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.05), rgba(255, 0, 229, 0.05));
+            border: 1px solid rgba(0, 240, 255, 0.15);
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .screen-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .screen-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .screen-dot.red { background: #ff5f57; }
+        .screen-dot.yellow { background: #ffbd2e; }
+        .screen-dot.green { background: #28c840; }
+
+        .screen-content {
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+        }
+
+        .screen-line {
+            padding: 4px 0;
+            opacity: 0;
+            animation: typeLine 0.5s ease forwards;
+        }
+
+        .screen-line:nth-child(1) { animation-delay: 0.5s; }
+        .screen-line:nth-child(2) { animation-delay: 1s; }
+        .screen-line:nth-child(3) { animation-delay: 1.5s; }
+        .screen-line:nth-child(4) { animation-delay: 2s; }
+        .screen-line:nth-child(5) { animation-delay: 2.5s; }
+        .screen-line:nth-child(6) { animation-delay: 3s; }
+        .screen-line:nth-child(7) { animation-delay: 3.5s; }
+        .screen-line:nth-child(8) { animation-delay: 4s; }
+        .screen-line:nth-child(9) { animation-delay: 4.5s; }
+
+        @keyframes typeLine {
+            to { opacity: 1; }
+        }
+
+        .code-keyword { color: var(--secondary); }
+        .code-function { color: var(--primary); }
+        .code-string { color: #98c379; }
+        .code-comment { color: #555; }
+
+        .showcase-info h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        .showcase-info h3 span {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .showcase-info p {
+            color: #888;
+            line-height: 1.8;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .showcase-list {
+            list-style: none;
+        }
+
+        .showcase-list li {
+            padding: 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #ccc;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .check-icon {
+            width: 30px;
+            height: 30px;
+            background: rgba(0, 240, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 0.9em;
+            flex-shrink: 0;
+        }
+
+        /* Module List Section */
+        #modules {
+            background: var(--darker);
+        }
+
+        .modules-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .module-category {
+            margin-bottom: 50px;
+        }
+
+        .category-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2em;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(0, 240, 255, 0.1);
+            color: var(--primary);
+        }
+
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .module-item {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 12px;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .module-item:hover {
+            background: rgba(0, 240, 255, 0.05);
+            border-color: rgba(0, 240, 255, 0.15);
+            transform: translateX(5px);
+        }
+
+        .module-name {
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+
+        .module-toggle {
+            width: 40px;
+            height: 22px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .module-toggle.active {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+        }
+
+        .module-toggle::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+            transition: all 0.3s;
+        }
+
+        .module-toggle.active::after {
+            left: 21px;
+        }
+
+        /* Testimonials / Community */
+        #community {
+            background: linear-gradient(180deg, var(--darker), var(--dark));
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .testimonial-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 35px;
+            transition: all 0.3s;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 240, 255, 0.15);
+        }
+
+        .testimonial-stars {
+            color: #ffd700;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .testimonial-text {
+            color: #aaa;
+            line-height: 1.7;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .author-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 1.1em;
+            color: #000;
+        }
+
+        .author-info .author-name {
+            font-weight: 700;
+            font-size: 1em;
+        }
+
+        .author-info .author-role {
+            color: #666;
+            font-size: 0.85em;
+        }
+
+        /* Pricing */
+        #pricing {
+            background: var(--dark);
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .pricing-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+            padding: 45px 35px;
+            text-align: center;
+            transition: all 0.4s;
+            position: relative;
+        }
+
+        .pricing-card.popular {
+            border-color: rgba(0, 240, 255, 0.3);
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.03), rgba(255, 0, 229, 0.03));
+            transform: scale(1.05);
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(0, 240, 255, 0.2);
+        }
+
+        .pricing-card.popular:hover {
+            transform: scale(1.05) translateY(-10px);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 5px 25px;
+            border-radius: 50px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7em;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #000;
+        }
+
+        .pricing-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2em;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            color: #aaa;
+        }
+
+        .pricing-price {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.5em;
+            font-weight: 900;
+            margin-bottom: 5px;
+        }
+
+        .pricing-price span {
+            font-size: 0.3em;
+            color: #666;
+        }
+
+        .pricing-card.popular .pricing-price {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .pricing-period {
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        .pricing-features {
+            list-style: none;
+            text-align: left;
+            margin-bottom: 35px;
+        }
+
+        .pricing-features li {
+            padding: 10px 0;
+            color: #888;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .pricing-features li::before {
+            content: '✓';
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .pricing-features li.disabled {
+            opacity: 0.3;
+        }
+
+        .pricing-features li.disabled::before {
+            content: '✗';
+            color: #ff4444;
+        }
+
+        /* Download Section */
+        #download {
+            background: linear-gradient(180deg, var(--dark), var(--darker));
+            text-align: center;
+        }
+
+        .download-box {
+            max-width: 800px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.05), rgba(255, 0, 229, 0.05));
+            border: 1px solid rgba(0, 240, 255, 0.15);
+            border-radius: 30px;
+            padding: 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .download-box::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 240, 255, 0.08), transparent);
+        }
+
+        .download-box::after {
+            content: '';
+            position: absolute;
+            bottom: -100px;
+            left: -100px;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 0, 229, 0.08), transparent);
+        }
+
+        .download-version {
+            display: inline-block;
+            padding: 5px 20px;
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            border-radius: 50px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8em;
+            letter-spacing: 2px;
+            color: var(--primary);
+            margin-bottom: 25px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .download-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5em;
+            font-weight: 900;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .download-desc {
+            color: #777;
+            max-width: 500px;
+            margin: 0 auto 35px;
+            line-height: 1.7;
+            position: relative;
+            z-index: 1;
+        }
+
+        .download-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .download-info {
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+            margin-top: 40px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .download-info-item {
+            color: #555;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* FAQ Section */
+        #faq {
+            background: var(--darker);
+        }
+
+        .faq-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .faq-item:hover {
+            border-color: rgba(0, 240, 255, 0.15);
+        }
+
+        .faq-question {
+            padding: 25px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1em;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+
+        .faq-question:hover {
+            color: var(--primary);
+        }
+
+        .faq-toggle {
+            font-size: 1.5em;
+            color: var(--primary);
+            transition: transform 0.3s;
+        }
+
+        .faq-item.active .faq-toggle {
+            transform: rotate(45deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, padding 0.4s;
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 300px;
+            padding: 0 30px 25px;
+        }
+
+        .faq-answer p {
+            color: #777;
+            line-height: 1.7;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--darker);
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+            padding: 60px 50px 30px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 50px;
+            max-width: 1200px;
+            margin: 0 auto 50px;
+        }
+
+        .footer-brand .logo {
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+
+        .footer-brand p {
+            color: #555;
+            line-height: 1.7;
+        }
+
+        .footer-column h4 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9em;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li a {
+            color: #555;
+            text-decoration: none;
+            padding: 5px 0;
+            display: block;
+            transition: all 0.3s;
+        }
+
+        .footer-column ul li a:hover {
+            color: #fff;
+            padding-left: 10px;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+            color: #333;
+            font-size: 0.9em;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Glitch Effect */
+        .glitch {
+            position: relative;
+        }
+
+        .glitch::before,
+        .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .glitch::before {
+            animation: glitch-1 2s infinite linear;
+            clip-path: polygon(0 0, 100% 0, 100% 33%, 0 33%);
+            -webkit-text-fill-color: var(--primary);
+        }
+
+        .glitch::after {
+            animation: glitch-2 2s infinite linear;
+            clip-path: polygon(0 67%, 100% 67%, 100% 100%, 0 100%);
+            -webkit-text-fill-color: var(--secondary);
+        }
+
+        @keyframes glitch-1 {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-3px); }
+            40% { transform: translateX(3px); }
+            60% { transform: translateX(-1px); }
+            80% { transform: translateX(1px); }
+        }
+
+        @keyframes glitch-2 {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(3px); }
+            40% { transform: translateX(-3px); }
+            60% { transform: translateX(1px); }
+            80% { transform: translateX(-1px); }
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(10, 10, 26, 0.95);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 9999;
+            transform: translateX(150%);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(20px);
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast-icon {
+            font-size: 1.5em;
+        }
+
+        .toast-content small {
+            color: #555;
+        }
+
+        /* Responsive */
+        @media (max-width: 968px) {
+            .hero-title { font-size: 3em; }
+            .exclusive-grid { grid-template-columns: 1fr; }
+            .showcase-container { grid-template-columns: 1fr; gap: 40px; }
+            .testimonials-grid { grid-template-columns: 1fr; }
+            .pricing-grid { grid-template-columns: 1fr; max-width: 400px; }
+            .pricing-card.popular { transform: none; }
+            .pricing-card.popular:hover { transform: translateY(-10px); }
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            nav { padding: 15px 20px; }
+            .nav-links {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 70%;
+                height: 100vh;
+                background: rgba(5, 5, 16, 0.98);
+                flex-direction: column;
+                justify-content: center;
+                transition: right 0.3s;
+                border-left: 1px solid rgba(0, 240, 255, 0.1);
+            }
+            .nav-links.active { right: 0; }
+            .hamburger { display: flex; }
+            section { padding: 80px 20px; }
+            .hero-title { font-size: 2.2em; }
+            .hero-stats { flex-direction: column; gap: 20px; }
+            .hero-buttons { flex-direction: column; align-items: center; }
+            .features-grid { grid-template-columns: 1fr; }
+            .footer-grid { grid-template-columns: 1fr; }
+            .download-buttons { flex-direction: column; align-items: center; }
+            .download-info { flex-direction: column; align-items: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Custom Cursor -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-dot" id="cursorDot"></div>
+
+    <!-- Particles -->
+    <canvas id="particles-canvas"></canvas>
+
+    <!-- Navigation -->
+    <nav id="navbar">
+        <div class="logo">CONDITIONER</div>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="#features">Features</a></li>
+            <li><a href="#exclusive">Exclusive</a></li>
+            <li><a href="#modules">Modules</a></li>
+            <li><a href="#community">Community</a></li>
+            <li><a href="#pricing">Pricing</a></li>
+            <li><a href="#download" class="btn-primary" style="padding:10px 25px; font-size:0.85em;">Download</a></li>
+        </ul>
+        <div class="hamburger" id="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="grid-bg"></div>
+        <div class="floating-block block1"></div>
+        <div class="floating-block block2"></div>
+        <div class="floating-block block3"></div>
+        <div class="floating-block block4"></div>
+
+        <div class="hero-content">
+            <div class="hero-badge">🎮 #1 Bedwars Client</div>
+            <h1 class="hero-title">
+                <span class="line1">DOMINATE</span>
+                <span class="line2 glitch" data-text="BEDWARS">BEDWARS</span>
+            </h1>
+            <p class="hero-subtitle">
+                The most advanced Minecraft Bedwars client with AI-powered modules,
+                exclusive features no other client has, and undetectable performance.
+            </p>
+            <div class="hero-buttons">
+                <a href="#download" class="btn-primary">⬇ DOWNLOAD NOW</a>
+                <a href="#features" class="btn-secondary">✦ EXPLORE</a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <div class="stat-number" id="counter1">0</div>
+                    <div class="stat-label">Active Users</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="counter2">0</div>
+                    <div class="stat-label">Beds Destroyed</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="counter3">0</div>
+                    <div class="stat-label">Win Rate %</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features">
+        <div class="section-header reveal">
+            <div class="section-tag">⚡ Power Features</div>
+            <h2 class="section-title">Features That <span>Destroy</span></h2>
+            <p class="section-desc">Every module is crafted for Bedwars domination with features you won't find anywhere else.</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card reveal">
+                <div class="feature-icon cyan">🧠</div>
+                <h3>AI Bed Finder</h3>
+                <p>Neural network-powered bed detection that predicts enemy bed locations through walls, blocks, and obsidian. Highlights the fastest route in real-time.</p>
+                <span class="feature-tag tag-exclusive">★ EXCLUSIVE</span>
+            </div>
+
+            <div class="feature-card reveal">
+                <div class="feature-icon pink">🌀</div>
+                <h3>Ghost Bridge AI</h3>
+                <p>Machine-learning speed bridging that adapts to your movement patterns. Builds at impossible angles while looking completely legit to spectators.</p>
+                <span class="feature-tag tag-exclusive">★ EXCLUSIVE</span>
+            </div>
+
+            <div class="feature-card reveal">
+                <div class="feature-icon purple">⚔️</div>
+                <h3>Combo Conditioner</h3>
+                <p>Our signature module. Conditions your hits to land perfect combos every time with adaptive W-tap timing and strafe prediction.</p>
+                <span class="feature-tag tag-unique">◆ UNIQUE</span>
+            </div>
+
+            <div class="feature-card reveal">
+                <div class="feature-icon cyan">🛡️</div>
+                <h3>Auto Bed Defense</h3>
+                <p>Automatically detects incoming enemies and builds defense layers. Smart material selection — uses endstone against TNT, obsidian against fireballs.</p>
+                <span class="feature-tag tag-exclusive">★ EXCLUSIVE</span>
+            </div>
+
+            <div class="feature-card reveal">
+                <div class="feature-icon pink">🎯</div>
+                <h3>Fireball Trajectory AI</h3>
+                <p>Calculates perfect fireball angles for TNT jumps, bridge destruction, and player knockback. Shows trajectory lines in real-time HUD.</p>
+                <span class="feature-tag tag-unique">◆ UNIQUE</span>
+            </div>
+
+            <div class="feature-card reveal">
+                <div class="feature-icon purple">👻</div>
+                <h3>Stealth Mode</h3>
+                <p>Advanced anti-detection that randomizes click patterns, adds human-like delays, and mimics natural mouse movements. 0% ban rate since launch.</p>
+                <span class="feature-tag tag-op">🔥 OVERPOWERED</span>
+            </div>
+
+            <div class="feature-card reveal">
+                <div class="feature-icon cyan">📊</div>
+                <h3>Live Game Analyzer</h3>
+                <p>Real-time overlay showing enemy resources, armor levels, team strength ratings, and threat analysis. Know everything before the fight.</p>
+                <span class="feature-tag tag-exclusive">★ EXCLUSIVE</span>
+            </div>
+
+            <div class="feature-card reveal">
+                <div class="feature-icon pink">🔄</div>
+                <h3>Smart Shop Bot</h3>
+                <p>Auto-purchases optimal items based on game phase, enemy threats, and your playstyle. Adapts strategy mid-game using reinforcement learning.</p>
+                <span class="feature-tag tag-exclusive">★ EXCLUSIVE</span>
+            </div>
+
+            <div class="feature-card reveal">
+                <div class="feature-icon purple">💎</div>
+                <h3>Resource Predictor</h3>
+                <p>Predicts generator spawn times, tracks enemy diamonds/emeralds, and alerts you to steal enemy resources at perfect timing windows.</p>
+                <span class="feature-tag tag-unique">◆ UNIQUE</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Exclusive Section -->
+    <section id="exclusive">
+        <div class="section-header reveal">
+            <div class="section-tag">🏆 Only In Conditioner</div>
+            <h2 class="section-title">Features <span>No Other Client</span> Has</h2>
+            <p class="section-desc">These revolutionary features exist only in Conditioner Client. We built them from scratch.</p>
+        </div>
+
+        <div class="exclusive-grid">
+            <div class="exclusive-card reveal">
+                <div class="exclusive-number">01</div>
+                <h3>⚡ Neural Clutch System</h3>
+                <p>When you're about to die, the AI takes micro-control to execute frame-perfect clutches — water bucket saves, block clutches, and pearl escapes that seem humanly impossible.</p>
+                <ul class="exclusive-features-list">
+                    <li>Detects lethal falls in 2ms</li>
+                    <li>Auto-places blocks under your feet</li>
+                    <li>Pearl trajectory optimization</li>
+                    <li>Water bucket timing to 1 tick precision</li>
+                </ul>
+            </div>
+
+            <div class="exclusive-card reveal">
+                <div class="exclusive-number">02</div>
+                <h3>🧬 Team Hivemind</h3>
+                <p>When multiple team members use Conditioner, the clients communicate in real-time. Coordinated attacks, synchronized rushes, and shared enemy intel — like a real military operation.</p>
+                <ul class="exclusive-features-list">
+                    <li>Encrypted client-to-client communication</li>
+                    <li>Shared enemy position tracking</li>
+                    <li>Coordinated multi-lane rushing</li>
+                    <li>Auto role assignment (rusher/defender)</li>
+                </ul>
+            </div>
+
+            <div class="exclusive-card reveal">
+                <div class="exclusive-number">03</div>
+                <h3>🎭 Replay Analyzer</h3>
+                <p>Records your games and uses AI to analyze mistakes, suggest improvements, and create training scenarios. Become a better player even while you sleep.</p>
+                <ul class="exclusive-features-list">
+                    <li>Post-game AI coaching reports</li>
+                    <li>PvP pattern recognition training</li>
+                    <li>Custom practice scenarios</li>
+                    <li>Weakness identification system</li>
+                </ul>
+            </div>
+
+            <div class="exclusive-card reveal">
+                <div class="exclusive-number">04</div>
+                <h3>🌐 Void Sense Technology</h3>
+                <p>Predicts void kills before they happen. Automatically adjusts your position when near edges, and counter-KBs to prevent being knocked into the void.</p>
+                <ul class="exclusive-features-list">
+                    <li>360° void proximity alerts</li>
+                    <li>Auto anti-void positioning</li>
+                    <li>Knockback direction prediction</li>
+                    <li>Emergency bridge activation</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Showcase Section -->
+    <section id="showcase">
+        <div class="showcase-container">
+            <div class="showcase-visual reveal">
+                <div class="showcase-screen">
+                    <div class="screen-header">
+                        <div class="screen-dot red"></div>
+                        <div class="screen-dot yellow"></div>
+                        <div class="screen-dot green"></div>
+                    </div>
+                    <div class="screen-content">
+                        <div class="screen-line"><span class="code-comment">// Conditioner Client v4.2.0</span></div>
+                        <div class="screen-line"><span class="code-keyword">import</span> { <span class="code-function">BedFinder</span>, <span class="code-function">GhostBridge</span> } <span class="code-keyword">from</span> <span class="code-string">'@conditioner/ai'</span></div>
+                        <div class="screen-line">&nbsp;</div>
+                        <div class="screen-line"><span class="code-keyword">const</span> client = <span class="code-keyword">new</span> <span class="code-function">Conditioner</span>({</div>
+                        <div class="screen-line">&nbsp;&nbsp;mode: <span class="code-string">'bedwars'</span>,</div>
+                        <div class="screen-line">&nbsp;&nbsp;stealth: <span class="code-keyword">true</span>,</div>
+                        <div class="screen-line">&nbsp;&nbsp;aiLevel: <span class="code-string">'maximum'</span>,</div>
+                        <div class="screen-line">&nbsp;&nbsp;clutchSystem: <span class="code-keyword">true</span></div>
+                        <div class="screen-line">})</div>
+                        <div class="screen-line">&nbsp;</div>
+                        <div class="screen-line"><span class="code-comment">// Status: ✅ All modules loaded</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="showcase-info reveal">
+                <h3>Built Different, <span>Plays Different</span></h3>
+                <p>Conditioner Client isn't just another cheat client. It's a complete AI-powered gaming companion that learns YOUR playstyle and enhances it beyond human limits.</p>
+                <ul class="showcase-list">
+                    <li>
+                        <div class="check-icon">✓</div>
+                        Zero detections since initial release
+                    </li>
+                    <li>
+                        <div class="check-icon">✓</div>
+                        Updates within 2 hours of any anticheat patch
+                    </li>
+                    <li>
+                        <div class="check-icon">✓</div>
+                        Works on Hypixel, CubeCraft, Mineplex & more
+                    </li>
+                    <li>
+                        <div class="check-icon">✓</div>
+                        Built-in FPS optimizer (avg +120 FPS boost)
+                    </li>
+                    <li>
+                        <div class="check-icon">✓</div>
+                        Custom HUD designer with drag & drop
+                    </li>
+                    <li>
+                        <div class="check-icon">✓</div>
+                        Config sharing with 10,000+ community presets
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modules Section -->
+    <section id="modules">
+        <div class="section-header reveal">
+            <div class="section-tag">🔧 Full Arsenal</div>
+            <h2 class="section-title">All <span>Modules</span></h2>
+            <p class="section-desc">Click to toggle. Over 60+ modules fine-tuned specifically for Bedwars.</p>
+        </div>
+
+        <div class="modules-container">
+            <div class="module-category reveal">
+                <div class="category-title">⚔️ Combat</div>
+                <div class="module-grid">
+                    <div class="module-item"><span class="module-name">KillAura</span><div class="module-toggle active"></div></div>
+                    <div class="module-item"><span class="module-name">Combo Conditioner</span><div class="module-toggle active"></div></div>
+                    <div class="module-item"><span class="module-name">W-Tap</span><div class="module-toggle active"></div></div>
+                    <div class="module-item"><span class="module-name">AutoClicker</span><div class="module-toggle"></div></div>
+                    <div class="module-item"><span class="module-name">Reach</span><div class="module-toggle active"></div></div>
+                    <div class="module-item"><span class="module-name">Velocity</span><div class="module-toggle active"></div></div>
+                    <div class="module-item"><span class="module-name">AimAssist</span><div class="module-toggle active"></div></div>
+                    <div class="module-item"><span class="module-name">Criticals</span><div class="module-toggle"></div></div>
+                </div>
+            </div>
+
+            <div class="module-category reveal">
+                <div class="category-title">🏗️ Movement & Building</div>
+                <div class="module-grid">
+                    <div class="module-item"><span class="module-name">Ghost Bridge</span><div class="module-toggle active"></div></div>
+                    <div class="module-item"><span class="module-name">Speed Bridge</span><div class="module-toggle"></div></div>
+                    <div class="module-item"><span class="module-name">Sprint</span><div class="module-toggle active"></div></div>
+                    <div class="module-item"><span class="module-name">Eagle</span><div class="module-toggle active"></div></div>
+                    <div class="module-item"><span class="module-name">AutoBridge</span><div class="module-toggle"></div></div>
+                    <div class="module-item"><span class="module-name">SafeWalk</span><div class="module-toggle active"></div></div>
+                    <div class="module-item"><span class="module-name">FastPlace</span><div class="module-toggle active"></div></div>
+                    <div class="module-item"><span class="module-name">Scaffold</span><div class="module-toggle"></div></div>
+                </div>
+            </div>
+
+            <div class="module-category reveal">
+                <div class="category-title">🛡️ Defense & Utility</div>
+                <div class="module-grid">
+                    <div class="module-item"><span class="module-name">Auto Bed Def</span><div class="module-toggle active"></div></div>
+                    <div class="module-item"><span class="module-name">Bed Finder AI</span><div class="module-toggle active"></div></div>
+                    <div class="module-item"><span class="module-name">Void Sense</span><div class="module-toggle active"></div></div>
+                    <div class="module-item"><span class="module-name">Neural Clutch</span><div class="module-toggle active"></div></div>
+                    <div class="module-item"><span class="module-name">Smart Shop</span><div class="module-toggle active"></div></div>
+                    <div class="module-item"><span class="module-name">Fireball Calc</span><div class="module-toggle"></div></div>
+                    <div class="module-item"><span class="module-name">TNT Timer</span><div class="module-toggle active"></div></div>
+                    <div class="module-item"><span class="module-name">Team Hivemind</span><div class="module-toggle active"></div></div>
+                </div>
+            </div>
+
+            <div class="module-category reveal">
+                <div class="category-title">👁️ Visuals & HUD</div>
+                <div class="module-grid">
+                    <div class="module-item"><span class="module-name">ESP Players</span><div class="module-toggle active"></div></div>
+                    <div class="module-item"><span class="module-name">Bed ESP</span><div class="module-toggle active"></div></div>
+                    <div class="module-item"><span class="module-name">Game Analyzer</span><div class="module-toggle active"></div></div>
+                    <div class="module-item"><span class="module-name">Tracers</span><div class="module-toggle"></div></div>
+                    <div class="module-item"><span class="module-name">NameTags+</span><div class="module-toggle active"></div></div>
+                    <div class="module-item"><span class="module-name">Block Overlay</span><div class="module-toggle active"></div></div>
+                    <div class="module-item"><span class="module-name">Custom HUD</span><div class="module-toggle active"></div></div>
+                    <div class="module-item"><span class="module-name">Minimap</span><div class="module-toggle"></div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Community Section -->
+    <section id="community">
+        <div class="section-header reveal">
+            <div class="section-tag">💬 Community</div>
+            <h2 class="section-title">Players <span>Love</span> Us</h2>
+            <p class="section-desc">Join thousands of Bedwars players who dominate with Conditioner.</p>
+        </div>
+
+        <div class="testimonials-grid">
+            <div class="testimonial-card reveal">
+                <div class="testimonial-stars">★★★★★</div>
+                <p class="testimonial-text">"The Ghost Bridge AI is insane. I went from a 2 star to a 200 star player in just 2 weeks. The clutch system saved me from void like 50 times today alone."</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">D</div>
+                    <div class="author-info">
+                        <div class="author-name">DragonSlayer_MC</div>
+                        <div class="author-role">500⭐ Bedwars Player</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="testimonial-card reveal">
+                <div class="testimonial-stars">★★★★★</div>
+                <p class="testimonial-text">"Team Hivemind is something I've NEVER seen in any other client. When my whole squad runs Conditioner, we literally cannot lose. It's coordinated destruction."</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">X</div>
+                    <div class="author-info">
+                        <div class="author-name">xNightVoid</div>
+                        <div class="author-role">Pro Team Captain</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="testimonial-card reveal">
+                <div class="testimonial-stars">★★★★★</div>
+                <p class="testimonial-text">"Used 5 different clients before. None come close to Conditioner. The Auto Bed Defense alone is worth the price. Also zero bans in 8 months straight."</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">S</div>
+                    <div class="author-info">
+                        <div class="author-name">SkyPvP_God</div>
+                        <div class="author-role">Content Creator</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing">
+        <div class="section-header reveal">
+            <div class="section-tag">💰 Pricing</div>
+            <h2 class="section-title">Choose Your <span>Power Level</span></h2>
+            <p class="section-desc">All plans include free updates and 24/7 Discord support.</p>
+        </div>
+
+        <div class="pricing-grid">
+            <div class="pricing-card reveal">
+                <div class="pricing-name">STARTER</div>
+                <div class="pricing-price">FREE</div>
+                <div class="pricing-period">forever</div>
+                <ul class="pricing-features">
+                    <li>Basic Combat Modules</li>
+                    <li>ESP & Tracers</li>
+                    <li>Sprint & SafeWalk</li>
+                    <li>Custom HUD</li>
+                    <li class="disabled">AI Features</li>
+                    <li class="disabled">Team Hivemind</li>
+                    <li class="disabled">Neural Clutch</li>
+                    <li class="disabled">Priority Updates</li>
+                </ul>
+                <a href="#download" class="btn-secondary" style="width:100%; justify-content:center;">GET FREE</a>
+            </div>
+
+            <div class="pricing-card popular reveal">
+                <div class="popular-badge">MOST POPULAR</div>
+                <div class="pricing-name">CONDITIONED</div>
+                <div class="pricing-price">$9.99<span>/mo</span></div>
+                <div class="pricing-period">billed monthly</div>
+                <ul class="pricing-features">
+                    <li>All Starter Features</li>
+                    <li>AI Bed Finder</li>
+                    <li>Ghost Bridge AI</li>
+                    <li>Neural Clutch System</li>
+                    <li>Void Sense</li>
+                    <li>Smart Shop Bot</li>
+                    <li>Game Analyzer</li>
+                    <li class="disabled">Team Hivemind</li>
+                </ul>
+                <a href="#download" class="btn-primary" style="width:100%; justify-content:center;">GET CONDITIONED</a>
+            </div>
+
+            <div class="pricing-card reveal">
+                <div class="pricing-name">ULTIMATE</div>
+                <div class="pricing-price">$19.99<span>/mo</span></div>
+                <div class="pricing-period">billed monthly</div>
+                <ul class="pricing-features">
+                    <li>All Conditioned Features</li>
+                    <li>Team Hivemind</li>
+                    <li>Replay Analyzer</li>
+                    <li>Priority Updates</li>
+                    <li>Custom Module Dev</li>
+                    <li>Private Discord</li>
+                    <li>Config Marketplace</li>
+                    <li>1-on-1 Coaching AI</li>
+                </ul>
+                <a href="#download" class="btn-secondary" style="width:100%; justify-content:center;">GO ULTIMATE</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Download Section -->
+    <section id="download">
+        <div class="download-box reveal">
+            <div class="download-version">v4.2.0 — LATEST</div>
+            <h2 class="download-title">Ready to Dominate?</h2>
+            <p class="download-desc">Download Conditioner Client now and start winning every Bedwars game. Setup takes less than 2 minutes.</p>
+            <div class="download-buttons">
+                <a href="#" class="btn-primary" id="downloadBtn">⬇ DOWNLOAD FOR WINDOWS</a>
+                <a href="#" class="btn-secondary">🍎 MAC VERSION</a>
+            </div>
+            <div class="download-info">
+                <div class="download-info-item">📦 Size: 24.3 MB</div>
+                <div class="download-info-item">🔒 Virus-Free</div>
+                <div class="download-info-item">⚡ Auto-Updater</div>
+                <div class="download-info-item">🎮 MC 1.8.9 - 1.20+</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq">
+        <div class="section-header reveal">
+            <div class="section-tag">❓ FAQ</div>
+            <h2 class="section-title">Common <span>Questions</span></h2>
+        </div>
+
+        <div class="faq-container">
+            <div class="faq-item reveal">
+                <div class="faq-question">
+                    Is Conditioner Client safe to use?
+                    <span class="faq-toggle">+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>Yes! Conditioner uses advanced stealth technology with human-like patterns. We've maintained a 0% detection rate since launch with rapid updates whenever anticheats are updated.</p>
+                </div>
+            </div>
+
+            <div class="faq-item reveal">
+                <div class="faq-question">
+                    What servers does it work on?
+                    <span class="faq-toggle">+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>Conditioner works on all major servers including Hypixel, CubeCraft, Mineplex, BedwarsPractice, and any server running Bedwars. Custom server profiles are also available.</p>
+                </div>
+            </div>
+
+            <div class="faq-item reveal">
+                <div class="faq-question">
+                    How does Team Hivemind work?
+                    <span class="faq-toggle">+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>When multiple team members use Conditioner, the clients create an encrypted peer-to-peer connection to share enemy positions, coordinate rushes, and assign roles automatically. It's like having a military-grade tactical system.</p>
+                </div>
+            </div>
+
+            <div class="faq-item reveal">
+                <div class="faq-question">
+                    Can I get a refund?
+                    <span class="faq-toggle">+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>We offer a 7-day money-back guarantee, no questions asked. If Conditioner doesn't make you dominate Bedwars, we'll refund you instantly.</p>
+                </div>
+            </div>
+
+            <div class="faq-item reveal">
+                <div class="faq-question">
+                    What makes Conditioner different from other clients?
+                    <span class="faq-toggle">+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>Our AI-powered features like Neural Clutch System, Team Hivemind, Ghost Bridge AI, and Void Sense are completely unique and don't exist in any other client. We're not a fork or copy — everything is built from scratch.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <div class="logo">CONDITIONER</div>
+                <p>The ultimate AI-powered Minecraft Bedwars client. Built for players who refuse to lose.</p>
+            </div>
+            <div class="footer-column">
+                <h4>PRODUCT</h4>
+                <ul>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#pricing">Pricing</a></li>
+                    <li><a href="#download">Download</a></li>
+                    <li><a href="#">Changelog</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>COMMUNITY</h4>
+                <ul>
+                    <li><a href="#">Discord</a></li>
+                    <li><a href="#">YouTube</a></li>
+                    <li><a href="#">TikTok</a></li>
+                    <li><a href="#">Twitter</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>SUPPORT</h4>
+                <ul>
+                    <li><a href="#faq">FAQ</a></li>
+                    <li><a href="#">Contact</a></li>
+                    <li><a href="#">Status</a></li>
+                    <li><a href="#">Terms</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2024 Conditioner Client. All rights reserved. Not affiliated with Mojang AB.</p>
+        </div>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <div class="toast-icon">🎮</div>
+        <div class="toast-content">
+            <strong>Someone just downloaded Conditioner!</strong><br>
+            <small id="toastUser">Player from Germany — 2 min ago</small>
+        </div>
+    </div>
+
+    <script>
+        // ============ PARTICLES ============
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = (Math.random() - 0.5) * 0.5;
+                this.speedY = (Math.random() - 0.5) * 0.5;
+                this.opacity = Math.random() * 0.5 + 0.1;
+                this.color = Math.random() > 0.5 ? '0, 240, 255' : '255, 0, 229';
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+                    this.reset();
+                }
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(${this.color}, ${this.opacity})`;
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < 100; i++) {
+            particles.push(new Particle());
+        }
+
+        function connectParticles() {
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 120) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(0, 240, 255, ${0.05 * (1 - dist / 120)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            connectParticles();
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        // ============ CUSTOM CURSOR ============
+        const cursor = document.getElementById('cursor');
+        const cursorDot = document.getElementById('cursorDot');
+
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX - 10 + 'px';
+            cursor.style.top = e.clientY - 10 + 'px';
+            cursorDot.style.left = e.clientX - 2.5 + 'px';
+            cursorDot.style.top = e.clientY - 2.5 + 'px';
+        });
+
+        document.querySelectorAll('a, button, .module-item, .faq-question, .feature-card').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                cursor.style.transform = 'scale(2)';
+                cursor.style.borderColor = '#ff00e5';
+            });
+            el.addEventListener('mouseleave', () => {
+                cursor.style.transform = 'scale(1)';
+                cursor.style.borderColor = '#00f0ff';
+            });
+        });
+
+        // ============ NAVBAR SCROLL ============
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        // ============ HAMBURGER MENU ============
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('navLinks');
+
+        hamburger.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+            });
+        });
+
+        // ============ COUNTER ANIMATION ============
+        function animateCounter(elementId, target, suffix = '') {
+            const el = document.getElementById(elementId);
+            let current = 0;
+            const increment = target / 80;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                el.textContent = Math.floor(current).toLocaleString() + suffix;
+            }, 20);
+        }
+
+        // Start counters when page loads
+        setTimeout(() => {
+            animateCounter('counter1', 47832);
+            animateCounter('counter2', 2841567);
+            animateCounter('counter3', 94, '%');
+        }, 1000);
+
+        // ============ REVEAL ON SCROLL ============
+        const revealElements = document.querySelectorAll('.reveal');
+
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry, index) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.classList.add('active');
+                    }, index * 100);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        revealElements.forEach(el => revealObserver.observe(el));
+
+        // ============ MODULE TOGGLES ============
+        document.querySelectorAll('.module-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const toggle = item.querySelector('.module-toggle');
+                toggle.classList.toggle('active');
+            });
+        });
+
+        // ============ FAQ ACCORDION ============
+        document.querySelectorAll('.faq-question').forEach(question => {
+            question.addEventListener('click', () => {
+                const item = question.parentElement;
+                const isActive = item.classList.contains('active');
+
+                // Close all
+                document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
+
+                // Open clicked if wasn't active
+                if (!isActive) {
+                    item.classList.add('active');
+                }
+            });
+        });
+
+        // ============ TOAST NOTIFICATIONS ============
+        const users = [
+            'Player from Germany — just now',
+            'Player from USA — 1 min ago',
+            'Player from Brazil — 2 min ago',
+            'Player from Japan — 3 min ago',
+            'Player from UK — 5 min ago',
+            'Player from France — just now',
+            'Player from Australia — 1 min ago',
+            'Player from Canada — 2 min ago',
+        ];
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            const toastUser = document.getElementById('toastUser');
+            toastUser.textContent = users[Math.floor(Math.random() * users.length)];
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 4000);
+        }
+
+        // Show first toast after 5 seconds, then every 15-30 seconds
+        setTimeout(showToast, 5000);
+        setInterval(showToast, Math.random() * 15000 + 15000);
+
+        // ============ DOWNLOAD BUTTON EFFECT ============
+        document.getElementById('downloadBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            const btn = e.target;
+            btn.textContent = '⏳ PREPARING...';
+            btn.style.pointerEvents = 'none';
+
+            setTimeout(() => {
+                btn.textContent = '✅ DOWNLOAD STARTING...';
+                setTimeout(() => {
+                    btn.textContent = '⬇ DOWNLOAD FOR WINDOWS';
+                    btn.style.pointerEvents = 'auto';
+                }, 2000);
+            }, 1500);
+        });
+
+        // ============ SMOOTH SCROLL FOR ALL ANCHOR LINKS ============
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (href !== '#') {
+                    e.preventDefault();
+                    const target = document.querySelector(href);
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }
+            });
+        });
+
+        // ============ KONAMI CODE EASTER EGG ============
+        let konamiCode = [];
+        const secretCode = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65];
+
+        document.addEventListener('keydown', (e) => {
+            konamiCode.push(e.keyCode);
+            if (konamiCode.length > secretCode.length) {
+                konamiCode.shift();
+            }
+            if (JSON.stringify(konamiCode) === JSON.stringify(secretCode)) {
+                document.body.style.animation = 'none';
+                document.body.style.filter = 'hue-rotate(180deg)';
+                alert('🎮 SECRET MODE ACTIVATED! You found the easter egg!');
+                setTimeout(() => {
+                    document.body.style.filter = 'none';
+                }, 5000);
+            }
+        });
+
+        // ============ TYPING EFFECT FOR HERO BADGE ============
+        const badge = document.querySelector('.hero-badge');
+        const originalText = badge.textContent;
+        badge.textContent = '';
+        let charIndex = 0;
+
+        function typeText() {
+            if (charIndex < originalText.length) {
+                badge.textContent += originalText.charAt(charIndex);
+                charIndex++;
+                setTimeout(typeText, 50);
+            }
+        }
+        setTimeout(typeText, 500);
+    </script>
+</body>
+</html>
